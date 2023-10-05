@@ -202,6 +202,11 @@ export const TotalOrderMainSection = () => {
     );
   }
 
+  //Edit functinality
+  const handleEdit=()=>{
+    
+  }
+
   return (
     <div className={stylesfromDash.mainSection}>
       <MainInfo />
@@ -275,6 +280,7 @@ export const TotalOrderMainSection = () => {
               <th>Order Date</th>
               <th>Total Amount</th>
               <th>Total Packages</th>
+              <th>Edit</th>
             </tr>
             </thead>
             <tbody>
@@ -289,6 +295,7 @@ export const TotalOrderMainSection = () => {
                 <td>{ele?.totalAmount}</td>
                 <td>{ele?.totalPackages}
               </td>
+              <td><button onClick={()=>handleEdit(ele?._id)}>Edit</button></td>
               </tr>
                     </>
                   ))
