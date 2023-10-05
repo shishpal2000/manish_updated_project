@@ -12,13 +12,17 @@ import axios from "axios";
 import Button from "react-bootstrap/Button";
 import Modal from "react-bootstrap/Modal";
 import "bootstrap/dist/css/bootstrap.min.css";
+import { useDispatch } from "react-redux";
 
 export const TotalCustomerMainSection = () => {
   const [tab, setTab] = useState("all");
   const [CustomerInfoModal, setCustomerInfoModal] = useState(false);
   const [addCustModal, setAddCustModal] = useState(false);
+  const [modelShowEditCustomer, setModalShowEditCustomer] = React.useState(false);
   const [customers, setCustomers] = useState([]);
   const [query, setQuery] = useState();
+  const [p_id,setP_id]=useState("");
+  // const dispatch = useDispatch();
 
   let newCustomer = [];
   const HandleModal = () => {
@@ -279,6 +283,159 @@ export const TotalCustomerMainSection = () => {
     );
   }
 
+  // handle Delete code
+  const handleDelete = async (id) => {
+    const token = localStorage.getItem("token");
+    const urld = `https://mr-manish-xcell-backend.vercel.app/api/v1/admin/products/${id}`;
+    try {
+      const res = await axios.delete(urld, {
+        headers: { Authorization: `Bearer ${token}` },
+      });
+      // dispatch(getAllProducts());
+    } catch (err) {
+      console.log(err.message);
+    }
+  };
+
+  //handle Edit 
+
+  //edit product screen
+function MyVerticallyCenteredModalCustomer(props) {
+  const ud = localStorage.getItem("token");
+  const [productId, setPid] = useState("");
+  const [productName, setPname] = useState("");
+  const [stock, setStock] = useState("");
+  const [quantity, setQ] = useState("");
+  const [price, setPrice] = useState("");
+  const image = "https://i.mydramalist.com/R6W7x_5f.jpg";
+  
+  //console.log(image, productId, productName, stock, quantity, price);
+  // const dispatch = useDispatch();
+
+  useEffect(() => {
+    const fetchData = async () => {
+      try {
+        const { data } = await axios.get(`https://mr-manish-xcell-backend.vercel.app/api/v1/products/${p_id}`, {
+          headers: {
+            Authorization: `Bearer ${ud}`,
+          },
+        });
+        setPid(data.data.productId);
+        setPname(data.data.productName);
+        setStock(data.data.stock);
+        setQ(data.data.quantity);
+        setPrice(data.data.price);
+        console.log(data);
+        console.log(image, productId, productName, stock, quantity, price);
+      } catch (err) {
+       console.log(err);
+      }
+    };
+    fetchData();
+  }, [p_id]);
+
+
+  const url =
+    `https://mr-manish-xcell-backend.vercel.app/api/v1/admin/products/${p_id}`;
+  const handleClick = async (e) => {
+    e.preventDefault();
+    try {
+      
+      const res = await axios.put(
+        url,
+        { image, productId, productName, stock, quantity, price },
+        {
+          headers: {
+            Authorization: `Bearer ${ud}`,
+          },
+        }
+      );
+      console.log(res?.data);
+      // dispatch(getAllProducts());
+      props.onHide();
+    } catch (err) {
+      console.log(err.message);
+    }
+  };
+
+  return (
+    <Modal
+      {...props}
+      size="lg"
+      aria-labelledby="contained-modal-title-vcenter"
+      centered
+    >
+      <Modal.Header closeButton>
+        <Modal.Title id="contained-modal-title-vcenter">
+          Modal heading
+        </Modal.Title>
+      </Modal.Header>
+      <Modal.Body>
+      
+        <form onSubmit={handleClick}>
+          <label>Product Id</label>
+          <input
+            type="text"
+            id="name"
+            name="name"
+            value={productId}
+            required
+            onChange={(e) => setPid(e.target.value)}
+          />
+
+          <label>Product Name</label>
+          <input
+            type="text"
+            id="email"
+            name="email"
+            value={productName}
+            required
+            onChange={(e) => setPname(e.target.value)}
+          />
+
+          <label>Stock</label>
+          <input
+            type="text"
+            id="password"
+            name="password"
+            value={stock}
+            required
+            onChange={(e) => setStock(e.target.value)}
+          />
+
+          <label>Quantity</label>
+          <input
+            type="text"
+            id="phone"
+            name="phone"
+            value={quantity}
+            required
+            onChange={(e) => setQ(e.target.value)}
+          />
+          <label for="phone">Price</label>
+          <input
+            type="text"
+            id="phone"
+            name="phone"
+            value={price}
+            required
+            onChange={(e) => setPrice(e.target.value)}
+          />
+          <input type="submit" value="Submit" />
+        </form>
+      </Modal.Body>
+      <Modal.Footer>
+        <Button onClick={props.onHide}>Close</Button>
+      </Modal.Footer>
+    </Modal>
+  );
+}
+
+  const handleEdit=(p_id)=>{
+    setP_id(p_id);
+    setModalShowEditCustomer(true)
+  }
+
   return (
     <div className={stylesfromDash.mainSection}>
       <MainInfo />
@@ -332,6 +489,8 @@ export const TotalCustomerMainSection = () => {
                 <th>State</th>
                 <th>District</th>
                 <th>Pincode</th>
+                <th>Edit</th>
+                <th>Delete</th>
               </tr>
             </thead>
 
@@ -347,6 +506,16 @@ export const TotalCustomerMainSection = () => {
                         <td>{ele.state}</td>
                         <td>{ele.district}</td>
                         <td>{ele.pincode}</td>
+                        <td>
+                          <button onClick={() => handleEdit(ele._id)}>
+                            Edit
+                          </button>
+                        </td>
+                        <td>
+                          <button onClick={() => handleDelete(ele._id)}>
+                            Delete
+                          </button>
+                        </td>
                         {/*<td>
                           {" "}
                           <BsEyeFill
@@ -367,6 +536,16 @@ export const TotalCustomerMainSection = () => {
                       <td>{ele.state}</td>
                       <td>{ele.district}</td>
                       <td>{ele.pincode}</td>
+                      <td>
+                          <button onClick={() => handleEdit(ele._id)}>
+                            Edit
+                          </button>
+                        </td>
+                        <td>
+                          <button onClick={() => handleDelete(ele._id)}>
+                            Delete
+                          </button>
+                        </td>
                       {/*<td>
                           {" "}
                           <BsEyeFill
@@ -384,6 +563,13 @@ export const TotalCustomerMainSection = () => {
       <MyVerticallyCenteredModal
         show={modalShow}
         onHide={() => setModalShow(false)}
+      />
+
+
+
+     <MyVerticallyCenteredModalCustomer
+        show={modelShowEditCustomer}
+        onHide={() => setModalShowEditCustomer(false)}
       />
     </div>
   );
